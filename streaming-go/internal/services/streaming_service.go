@@ -1,0 +1,128 @@
+package services
+
+import (
+	"fmt"
+	"time"
+
+	customErr "streaming/internal/errors"
+	"streaming/internal/models"
+)
+
+type UserRepo interface {
+	CreateUser(u *models.User) error
+	GetUserByID(id string) (*models.User, error)
+}
+
+type ContentRepo interface {
+	CreateContent(c *models.Content) error
+	GetContentByID(id string) (*models.Content, error)
+	ListContent() []*models.Content
+	DeleteContent(id string) error
+}
+
+type StreamingService struct {
+	userRepo    UserRepo
+	contentRepo ContentRepo
+	playHistory map[string][]string
+}
+
+func NewStreamingService(u UserRepo, c ContentRepo) *StreamingService {
+	return &StreamingService{
+		userRepo:    u,
+		contentRepo: c,
+		playHistory: make(map[string][]string),
+	}
+}
+
+func (s *StreamingService) RegisterUser(id, name, email string) (*models.User, error) {
+	user, err := models.NewUser(id, name, email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.userRepo.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *StreamingService) AddContent(id, title string, ctype models.ContentType, duration int) (*models.Content, error) {
+	content, err := models.NewContent(id, title, ctype, duration)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.contentRepo.CreateContent(content)
+	if err != nil {
+		return nil, err
+	}
+
+	return content, nil
+}
+
+func (s *StreamingService) Play(userID, contentID string) (string, error) {
+	_, err := s.userRepo.GetUserByID(userID)
+	if err != nil {
+		return "", customErr.ErrNotFound{Entity: "User", ID: userID}
+	}
+
+	content, err := s.contentRepo.GetContentByID(contentID)
+	if err != nil {
+		return "", customErr.ErrNotFound{Entity: "Content", ID: contentID}
+	}
+
+	s.playHistory[userID] = append(s.playHistory[userID], contentID)
+
+	msg := fmt.Sprintf(
+		"User %s está reproduciendo: %s (%ds) - %s",
+		userID,
+		content.GetTitle(),
+		content.GetDuration(),
+		time.Now().Format("2006-01-02 15:04:05"),
+	)
+
+	return msg, nil
+}
+
+func (s *StreamingService) GetHistory(userID string) ([]*models.Content, error) {
+	ids, exists := s.playHistory[userID]
+	if !exists {
+		return []*models.Content{}, nil
+	}
+
+	var result []*models.Content
+
+	for _, id := range ids {
+		if content, err := s.contentRepo.GetContentByID(id); err == nil {
+			result = append(result, content)
+		}
+	}
+
+	return result, nil
+}
+
+func (s *StreamingService) UpdateContentTitle(id, title string) error {
+	c, err := s.contentRepo.GetContentByID(id)
+	if err != nil {
+		return err
+	}
+
+	return c.SetTitle(title)
+}
+
+func (s *StreamingService) DeleteContent(id string) error {
+	return s.contentRepo.DeleteContent(id)
+}
+
+func (s *StreamingService) GetUsers() ([]*models.User, error) {
+	if repo, ok := s.userRepo.(interface{ ListUsers() []*models.User }); ok {
+		return repo.ListUsers(), nil
+	}
+	return []*models.User{}, nil
+}
+
+func (s *StreamingService) GetContent() ([]*models.Content, error) {
+	return s.contentRepo.ListContent(), nil
+}
