@@ -8,8 +8,6 @@ import (
 	"streaming/internal/models"
 )
 
-// ===== Interfaces que debe implementar el repo =====
-
 type UserRepo interface {
 	CreateUser(u *models.User) error
 	GetUserByID(id string) (*models.User, error)
@@ -19,9 +17,8 @@ type ContentRepo interface {
 	CreateContent(c *models.Content) error
 	GetContentByID(id string) (*models.Content, error)
 	ListContent() []*models.Content
+	DeleteContent(id string) error
 }
-
-// ===== Servicio principal =====
 
 type StreamingService struct {
 	userRepo    UserRepo
@@ -37,8 +34,6 @@ func NewStreamingService(u UserRepo, c ContentRepo) *StreamingService {
 	}
 }
 
-// ===== Crear usuario =====
-
 func (s *StreamingService) RegisterUser(id, name, email string) (*models.User, error) {
 	user, err := models.NewUser(id, name, email)
 	if err != nil {
@@ -53,8 +48,6 @@ func (s *StreamingService) RegisterUser(id, name, email string) (*models.User, e
 	return user, nil
 }
 
-// ===== Crear contenido =====
-
 func (s *StreamingService) AddContent(id, title string, ctype models.ContentType, duration int) (*models.Content, error) {
 	content, err := models.NewContent(id, title, ctype, duration)
 	if err != nil {
@@ -68,8 +61,6 @@ func (s *StreamingService) AddContent(id, title string, ctype models.ContentType
 
 	return content, nil
 }
-
-// ===== Reproducir contenido =====
 
 func (s *StreamingService) Play(userID, contentID string) (string, error) {
 	_, err := s.userRepo.GetUserByID(userID)
@@ -94,8 +85,6 @@ func (s *StreamingService) Play(userID, contentID string) (string, error) {
 
 	return msg, nil
 }
-
-// ===== Historial =====
 
 func (s *StreamingService) GetHistory(userID string) ([]*models.Content, error) {
 	ids, exists := s.playHistory[userID]
@@ -123,12 +112,9 @@ func (s *StreamingService) UpdateContentTitle(id, title string) error {
 	return c.SetTitle(title)
 }
 
-// ===== Eliminar contenido (solo 1 vez) =====
 func (s *StreamingService) DeleteContent(id string) error {
-	return nil
+	return s.contentRepo.DeleteContent(id)
 }
-
-// ===== Listar usuarios =====
 
 func (s *StreamingService) GetUsers() ([]*models.User, error) {
 	if repo, ok := s.userRepo.(interface{ ListUsers() []*models.User }); ok {
@@ -136,8 +122,6 @@ func (s *StreamingService) GetUsers() ([]*models.User, error) {
 	}
 	return []*models.User{}, nil
 }
-
-// ===== Listar contenido =====
 
 func (s *StreamingService) GetContent() ([]*models.Content, error) {
 	return s.contentRepo.ListContent(), nil

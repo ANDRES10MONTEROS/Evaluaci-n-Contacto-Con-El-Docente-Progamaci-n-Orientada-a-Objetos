@@ -20,6 +20,14 @@ type Content struct {
 	createdAt   time.Time
 }
 
+type ContentResponse struct {
+	ID        string      `json:"id"`
+	Title     string      `json:"title"`
+	Type      ContentType `json:"type"`
+	Duration  int         `json:"duration"`
+	CreatedAt time.Time   `json:"created_at"`
+}
+
 func NewContent(id, title string, ctype ContentType, durationSec int) (*Content, error) {
 	if id == "" || title == "" {
 		return nil, errors.New("id and title required")
@@ -36,19 +44,33 @@ func NewContent(id, title string, ctype ContentType, durationSec int) (*Content,
 	}, nil
 }
 
-func (c *Content) GetID() string { return c.id }
-func (c *Content) GetTitle() string { return c.title }
-func (c *Content) GetType() ContentType { return c.ctype }
-func (c *Content) GetDuration() int { return c.durationSec }
+func (c *Content) GetID() string           { return c.id }
+func (c *Content) GetTitle() string        { return c.title }
+func (c *Content) GetType() ContentType    { return c.ctype }
+func (c *Content) GetDuration() int        { return c.durationSec }
 func (c *Content) GetCreatedAt() time.Time { return c.createdAt }
 
+func (c *Content) ToResponse() ContentResponse {
+	return ContentResponse{
+		ID:        c.id,
+		Title:     c.title,
+		Type:      c.ctype,
+		Duration:  c.durationSec,
+		CreatedAt: c.createdAt,
+	}
+}
+
 func (c *Content) SetTitle(title string) error {
-	if title == "" { return errors.New("title cannot be empty") }
+	if title == "" {
+		return errors.New("title cannot be empty")
+	}
 	c.title = title
 	return nil
 }
 func (c *Content) SetDuration(sec int) error {
-	if sec <= 0 { return errors.New("duration must be positive") }
+	if sec <= 0 {
+		return errors.New("duration must be positive")
+	}
 	c.durationSec = sec
 	return nil
 }

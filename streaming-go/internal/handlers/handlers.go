@@ -32,8 +32,6 @@ func RegisterRoutes(r *gin.Engine, service *services.StreamingService) {
 	api.DELETE("/content/:id", h.DeleteContent)
 }
 
-// ---------------------- USERS ----------------------
-
 func (h *Handler) CreateUser(c *gin.Context) {
 	var req struct {
 		ID    string `json:"id"`
@@ -52,15 +50,19 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, user.ToResponse())
 }
 
 func (h *Handler) GetUsers(c *gin.Context) {
 	users, _ := h.service.GetUsers()
-	c.JSON(http.StatusOK, users)
-}
 
-// ---------------------- CONTENT ----------------------
+	var out []models.UserResponse
+	for _, u := range users {
+		out = append(out, u.ToResponse())
+	}
+
+	c.JSON(http.StatusOK, out)
+}
 
 func (h *Handler) CreateContent(c *gin.Context) {
 	var req struct {
@@ -81,15 +83,19 @@ func (h *Handler) CreateContent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, content)
+	c.JSON(http.StatusCreated, content.ToResponse())
 }
 
 func (h *Handler) GetContent(c *gin.Context) {
 	content, _ := h.service.GetContent()
-	c.JSON(http.StatusOK, content)
-}
 
-// ---------------------- PLAYBACK ----------------------
+	var out []models.ContentResponse
+	for _, c := range content {
+		out = append(out, c.ToResponse())
+	}
+
+	c.JSON(http.StatusOK, out)
+}
 
 func (h *Handler) PlayContent(c *gin.Context) {
 	var req struct {
@@ -111,15 +117,17 @@ func (h *Handler) PlayContent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
-// ---------------------- HISTORY ----------------------
-
 func (h *Handler) GetHistory(c *gin.Context) {
 	id := c.Param("id")
 	history, _ := h.service.GetHistory(id)
-	c.JSON(http.StatusOK, history)
-}
 
-// ---------------------- UPDATE TITLE ----------------------
+	var out []models.ContentResponse
+	for _, c := range history {
+		out = append(out, c.ToResponse())
+	}
+
+	c.JSON(http.StatusOK, out)
+}
 
 func (h *Handler) UpdateTitle(c *gin.Context) {
 	id := c.Param("id")
@@ -141,8 +149,6 @@ func (h *Handler) UpdateTitle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "title updated"})
 }
-
-// ---------------------- DELETE ----------------------
 
 func (h *Handler) DeleteContent(c *gin.Context) {
 	id := c.Param("id")

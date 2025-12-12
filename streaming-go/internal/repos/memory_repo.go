@@ -7,7 +7,6 @@ import (
 	"streaming/internal/models"
 )
 
-// Interfaces esperadas por el servicio
 type UserRepo interface {
 	CreateUser(u *models.User) error
 	GetUserByID(id string) (*models.User, error)
@@ -21,7 +20,6 @@ type ContentRepo interface {
 	DeleteContent(id string) error
 }
 
-// Repositorio único en memoria
 type MemoryRepo struct {
 	users    map[string]*models.User
 	contents map[string]*models.Content
@@ -34,8 +32,6 @@ func NewMemoryRepo() *MemoryRepo {
 		contents: make(map[string]*models.Content),
 	}
 }
-
-// ------------------ USUARIOS ------------------
 
 func (r *MemoryRepo) CreateUser(u *models.User) error {
 	r.mu.Lock()
@@ -65,8 +61,6 @@ func (r *MemoryRepo) ListUsers() []*models.User {
 	}
 	return out
 }
-
-// ------------------ CONTENIDO ------------------
 
 func (r *MemoryRepo) CreateContent(c *models.Content) error {
 	r.mu.Lock()
