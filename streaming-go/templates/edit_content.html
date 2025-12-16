@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Contenido - Streaming Go</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Editar Contenido</h1>
+        <div class="nav">
+            <a href="/content">Volver a Contenido</a>
+        </div>
+        <form action="/content/{{.ID}}/update" method="post">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" value="{{.Title}}" required>
+
+            <label for="type">Tipo:</label>
+            <select id="type" name="type" required>
+                <option value="1" {{if eq .Type 1}}selected{{end}}>Película</option>
+                <option value="2" {{if eq .Type 2}}selected{{end}}>Serie</option>
+            </select>
+
+            <label for="duration">Duración (min):</label>
+            <input type="number" id="duration" name="duration" value="{{.Duration}}" required>
+
+            <input type="submit" value="Actualizar Contenido">
+        </form>
+        <form action="/content/{{.ID}}/delete" method="post" style="margin-top: 20px;">
+            <input type="submit" value="Eliminar Contenido" style="background:#e53e3e;color:white;border:1px solid #ccc;padding:8px 16px;cursor:pointer;" onclick="return confirm('¿Estas seguro de que quieres eliminar este contenido?')">
+        </form>
+    </div>
+</body>
+</html>

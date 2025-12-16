@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios - Streaming Go</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Usuarios</h1>
+        <p>Aqui puedes ver todos los usuarios registrados. Haz clic en "Historial" para ver que contenido han visto.</p>
+        <div class="nav">
+            <a href="/">Inicio</a>
+        </div>
+        <ul>
+            {{range .Users}}
+            <li>{{.ID}} - {{.Name}} - {{.Email}} <a href="/history/{{.ID}}">Historial</a></li>
+            {{end}}
+        </ul>
+        <h2>Crear Usuario</h2>
+        <form action="/users" method="post">
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id" required>
+
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <input type="submit" value="Crear Usuario">
+        </form>
+    </div>
+</body>
+</html>

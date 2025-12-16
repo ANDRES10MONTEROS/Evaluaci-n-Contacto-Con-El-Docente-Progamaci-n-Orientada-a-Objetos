@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproducir - Streaming Go</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Reproducir Contenido</h1>
+        <div class="nav">
+            <a href="/">Inicio</a>
+        </div>
+        <form action="/play" method="post">
+            <label for="user_id">ID de Usuario:</label>
+            <input type="text" id="user_id" name="user_id" required>
+
+            <label for="content_id">ID de Contenido:</label>
+            <input type="text" id="content_id" name="content_id" required>
+
+            <input type="submit" value="Reproducir">
+        </form>
+    </div>
+</body>
+</html>

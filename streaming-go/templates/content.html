@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contenido - Streaming Go</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Contenido</h1>
+        <p>Lista de todas las peliculas y series disponibles. Puedes editar cada una haciendo clic en "Editar".</p>
+        <div class="nav">
+            <a href="/">Inicio</a>
+        </div>
+        <ul>
+            {{range .Content}}
+            <li>{{.ID}} - {{.Title}} ({{.Type}}) - {{.Duration}} min<br>
+                <a href="/content/{{.ID}}/edit">Editar</a> | 
+                <input type="submit" form="delete-{{.ID}}" value="Borrar" onclick="return confirm('¿Eliminar {{.Title}}?')" style="background:#e53e3e;color:white;border:none;padding:2px 5px;cursor:pointer;">
+                <form id="delete-{{.ID}}" action="/content/{{.ID}}/delete" method="post" style="display:none;"></form>
+            </li>
+            {{end}}
+        </ul>
+        <h2>Crear Contenido</h2>
+        <form action="/content" method="post">
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id" required>
+
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="type">Tipo:</label>
+            <select id="type" name="type" required>
+                <option value="1">Película</option>
+                <option value="2">Serie</option>
+            </select>
+
+            <label for="duration">Duración (min):</label>
+            <input type="number" id="duration" name="duration" required>
+
+            <input type="submit" value="Crear Contenido">
+        </form>
+    </div>
+</body>
+</html>
